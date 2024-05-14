@@ -1,0 +1,46 @@
+{{ block "index" .}}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dutch to English/Turkish Dictionary</title>
+        <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <style>
+            .htmx-indicator {
+                opacity:0;
+                transition: opacity 500ms ease-in;
+            }
+            .htmx-request .htmx-indicator {
+                opacity:1
+            }
+            .htmx-request.htmx-indicatorv{
+                opacity:1
+            }
+            .contact.htmx-swapping {
+                opacity:0;
+                transition: opacity 500ms ease-in;
+            }
+        </style>
+    </head>
+    <body>
+        {{template "word-entry" .Form}}
+        <hr />
+        {{template "display" .Data}}
+    
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", (event) => {
+                document.body.addEventListener('htmx:beforeSwap', function(evt) {
+                    if (evt.detail.xhr.status === 422) {
+                        console.log("bad data");
+                        evt.detail.shouldSwap = true;
+                        evt.detail.isError = false;
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
+{{ end }}
