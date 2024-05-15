@@ -26,9 +26,19 @@
         </style>
     </head>
     <body>
-        {{template "word-entry" .Form}}
-        <hr />
-        {{template "display" .Data}}
+        <main style="display: flex; gap: 100px;">
+            <div class="dict">
+                {{ template "word-entry" .Form }}
+                <hr />
+                {{ template "display" .Data }}
+            </div>
+            <div class="search">
+                {{ template "search" .Form }}
+                <hr />
+                {{ template "search-results" .Data }}
+            </div>
+        </main>
+        
     
         <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", (event) => {

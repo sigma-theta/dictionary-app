@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -48,7 +49,8 @@ func newWord(original, translation string) Word {
 type Words = []Word
 
 type Data struct {
-	Words Words
+	Words         Words
+	SearchResults Words
 }
 
 func (d *Data) indexOf(id int) int {
@@ -75,6 +77,7 @@ func newData() Data {
 			newWord("aanpassen", "to adapt"),
 			newWord("aantonen", "to demonstrate"),
 		},
+		SearchResults: []Word{},
 	}
 }
 
@@ -134,6 +137,25 @@ func main() {
 		c.Render(200, "word-entry", newFormData())
 
 		return c.Render(200, "oob-word", defn)
+	})
+
+	e.POST("/search", func(c echo.Context) error {
+		keyword := c.FormValue("search")
+
+		if keyword == "" {
+			page.Data.SearchResults = nil
+		} else {
+			keyword = strings.ToLower(keyword)
+
+			page.Data.SearchResults = make([]Word, 0, len(page.Data.Words))
+			for _, word := range page.Data.Words {
+				if strings.Contains(strings.ToLower(word.Original), keyword) || strings.Contains(strings.ToLower(word.Translation), keyword) {
+					page.Data.SearchResults = append(page.Data.SearchResults, word)
+				}
+			}
+		}
+
+		return c.Render(200, "search-results", page.Data)
 	})
 
 	e.DELETE("/words/:id", func(c echo.Context) error {

@@ -40,3 +40,30 @@
     {{ template "word" . }}
 </div>
 {{ end }}
+
+{{ block "search" . }}
+<div class="search-bar"> Search:
+<input class="form-control" 
+        type="search" 
+        name="search"
+        hx-post="/search" 
+        hx-trigger="input changed delay:500ms, search" 
+        hx-target="#search-results" 
+        hx-indicator=".htmx-indicator">
+</div>
+{{ end }}
+
+{{ block "result" . }}
+<div class="search-result" id="result-{{ .Id }}" style="display: flex;">
+    <b>Word:</b> <span>{{ .Original }}</span>
+    <b>Translation:</b> <span>{{ .Translation }}</span>
+</div>
+{{ end }}
+
+{{ block "search-results" . }}
+<div id="search-results" style="display: flex; flex-direction: column;" class="search-results">
+    {{ range .SearchResults }}
+        {{ template "result" . }}
+    {{ end }}
+</div>
+{{ end }}
