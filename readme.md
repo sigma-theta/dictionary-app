@@ -2,10 +2,8 @@
 
 ### Based on ThePrimagen Intro to Go-HTMX course
 
-TODO: Get words from database
+TODO: Implement update, delete and edit in database
 
-TODO: Active Search
-
-TODO: Edit functionality
+TODO: Active Search in database
 
 TODO: Styling

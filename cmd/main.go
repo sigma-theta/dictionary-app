@@ -1,14 +1,20 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"html/template"
 	"io"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gwthm-in/dotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	_ "github.com/lib/pq"
 )
 
 type Templates struct {
@@ -73,10 +79,7 @@ func (d *Data) wordExists(original string) bool {
 
 func newData() Data {
 	return Data{
-		Words: []Word{
-			newWord("aanpassen", "to adapt"),
-			newWord("aantonen", "to demonstrate"),
-		},
+		Words:         []Word{},
 		SearchResults: []Word{},
 	}
 }
@@ -105,16 +108,63 @@ func newPage() Page {
 	}
 }
 
+func getWords(db *sql.DB, page *Page) {
+	rows, err := db.Query("select * from words")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var defn Word
+	for rows.Next() {
+		err := rows.Scan(&defn.Id, &defn.Original, &defn.Translation)
+		if err != nil {
+			log.Fatal(err)
+		}
+		//log.Println(defn.Id, defn.Original)
+		page.Data.Words = append(page.Data.Words, Word{Id: defn.Id, Original: defn.Original, Translation: defn.Translation})
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
+	dotenv.OptLookupMod()
+	err := dotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env: %s", err)
+	}
+
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASS")
+	dbHost := os.Getenv("DB_HOST")
+	dbName := os.Getenv("DB_NAME")
+	conn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=require", dbUser, dbPass, dbHost, dbName)
+	db, err := sql.Open("postgres", conn)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	var version string
+	if err := db.QueryRow("select version()").Scan(&version); err != nil {
+		panic(err)
+	}
+	fmt.Printf("version=%s\n", version)
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 
 	page := newPage()
+	getWords(db, &page)
 
 	e.Renderer = newTemplate()
 	e.Static("/css", "css") //not used right now, will fix maybe
 
 	e.GET("/", func(c echo.Context) error {
+		fmt.Printf("%d words in database", len(page.Data.Words))
 		return c.Render(200, "index", page)
 	})
 
