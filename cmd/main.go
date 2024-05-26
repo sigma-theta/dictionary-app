@@ -198,11 +198,34 @@ func main() {
 			keyword = strings.ToLower(keyword)
 
 			page.Data.SearchResults = make([]Word, 0, len(page.Data.Words))
-			for _, word := range page.Data.Words {
+
+			searchQry := fmt.Sprintf("select * from words where original like '%%%s%%' or meaning like '%%%s%%'", keyword, keyword)
+			fmt.Println(searchQry)
+
+			rows, err := db.Query(searchQry)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer rows.Close()
+
+			var defn Word
+			for rows.Next() {
+				err := rows.Scan(&defn.Id, &defn.Original, &defn.Translation)
+				if err != nil {
+					log.Fatal(err)
+				}
+				//log.Println(defn.Id, defn.Original)
+				page.Data.SearchResults = append(page.Data.SearchResults, Word{Id: defn.Id, Original: defn.Original, Translation: defn.Translation})
+			}
+
+			if err := rows.Err(); err != nil {
+				log.Fatal(err)
+			}
+			/* for _, word := range page.Data.Words {
 				if strings.Contains(strings.ToLower(word.Original), keyword) || strings.Contains(strings.ToLower(word.Translation), keyword) {
 					page.Data.SearchResults = append(page.Data.SearchResults, word)
 				}
-			}
+			} */
 		}
 
 		return c.Render(200, "search-results", page.Data)
