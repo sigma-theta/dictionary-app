@@ -35,20 +35,23 @@ type Count struct {
 	Count int
 }
 
-var id = 0
-
 type Word struct {
 	Original    string
 	Translation string
 	Id          int
 }
 
-func newWord(original, translation string) Word {
-	id++
+func newWord(original, translation string, db *sql.DB) Word {
+	newWord := new(Word)
+	appendQry := fmt.Sprintf("insert into words(original, meaning) values ('%s', '%s') returning *", original, translation)
+	err := db.QueryRow(appendQry).Scan(&newWord.Id, &newWord.Original, &newWord.Translation)
+	if err != nil {
+		fmt.Printf("couldn't add new word: %s", err)
+	}
 	return Word{
-		Id:          id,
-		Original:    original,
-		Translation: translation,
+		Id:          newWord.Id,
+		Original:    newWord.Original,
+		Translation: newWord.Translation,
 	}
 }
 
@@ -109,6 +112,7 @@ func newPage() Page {
 }
 
 func getWords(db *sql.DB, page *Page) {
+	page.Data.Words = []Word{}
 	rows, err := db.Query("select * from words")
 	if err != nil {
 		log.Fatal(err)
@@ -181,7 +185,7 @@ func main() {
 			return c.Render(422, "word-entry", formData)
 		}
 
-		defn := newWord(original, translation)
+		defn := newWord(original, translation, db)
 		page.Data.Words = append(page.Data.Words, defn)
 
 		c.Render(200, "word-entry", newFormData())
@@ -221,11 +225,6 @@ func main() {
 			if err := rows.Err(); err != nil {
 				log.Fatal(err)
 			}
-			/* for _, word := range page.Data.Words {
-				if strings.Contains(strings.ToLower(word.Original), keyword) || strings.Contains(strings.ToLower(word.Translation), keyword) {
-					page.Data.SearchResults = append(page.Data.SearchResults, word)
-				}
-			} */
 		}
 
 		return c.Render(200, "search-results", page.Data)
@@ -242,7 +241,13 @@ func main() {
 
 		index := page.Data.indexOf(id)
 		if index == -1 {
-			return c.String(404, "Contact not found")
+			return c.String(404, "Word not found")
+		}
+
+		deleteQry := fmt.Sprintf("delete from words where word_id = %d", id)
+		_, err = db.Exec(deleteQry)
+		if err != nil {
+			fmt.Printf("couldn't delete word: %s", err)
 		}
 
 		page.Data.Words = append(page.Data.Words[:index], page.Data.Words[index+1:]...)
