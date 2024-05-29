@@ -12,35 +12,6 @@
 </form>
 {{ end }}
 
-{{ block "display" . }}
-<div id="words" style="display: flex; flex-direction: column;" class="words">
-    {{ range .Words }}
-        {{ template "word" . }}
-    {{ end }}
-</div>
-{{ end }}
-
-{{ block "word" . }}
-<div class="word" id="word-{{ .Id }}" style="display: flex;">
-    <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-delete="/words/{{ .Id }}"  style="width: 1rem;">
-        <i class="fa fa-trash" aria-hidden="true"></i>
-    </div>
-
-    <b>Word:</b> <span>{{ .Original }}</span>
-    <b>Translation:</b> <span>{{ .Translation }}</span>
-
-    <div id="di-{{ .Id }}" class="htmx-indicator">
-        <i class="fa fa-circle-o-notch fa-spin fa-ig fa-fw"></i>
-    </div>
-</div>
-{{ end }}
-
-{{ block "oob-word" . }}
-<div id="words" hx-swap-oob="afterbegin">
-    {{ template "word-table" . }}
-</div>
-{{ end }}
-
 {{ block "search" . }}
 <div class="search-bar"> Search:
 <input class="form-control" 

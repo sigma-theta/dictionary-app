@@ -186,11 +186,11 @@ func main() {
 		}
 
 		defn := newWord(original, translation, db)
-		page.Data.Words = append(page.Data.Words, defn)
+		page.Data.Words = append([]Word{defn}, page.Data.Words...)
 
 		c.Render(200, "word-entry", newFormData())
 
-		return c.Render(200, "oob-word", defn)
+		return c.Render(200, "table", page.Data)
 	})
 
 	e.POST("/search", func(c echo.Context) error {
@@ -231,7 +231,7 @@ func main() {
 	})
 
 	e.DELETE("/words/:id", func(c echo.Context) error {
-		time.Sleep(1 * time.Second)
+		time.Sleep(500 * time.Millisecond)
 		idStr := c.Param("id")
 		id, err := strconv.Atoi(idStr)
 

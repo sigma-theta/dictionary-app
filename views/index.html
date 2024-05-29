@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="htmx-config" content='{"useTemplateFragments":"true"}'>
         <title>Dutch to English/Turkish Dictionary</title>
         <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
         <!--<link rel="stylesheet" href="../css/index.css">-->
@@ -13,7 +14,7 @@
         <style>
             .htmx-indicator {
                 opacity:0;
-                transition: opacity 500ms ease-in;
+                transition: opacity 250ms ease-in;
             }
             .htmx-request .htmx-indicator {
                 opacity:1
@@ -21,9 +22,9 @@
             .htmx-request.htmx-indicatorv{
                 opacity:1
             }
-            .contact.htmx-swapping {
+            .word.htmx-swapping {
                 opacity:0;
-                transition: opacity 500ms ease-in;
+                transition: opacity 250ms ease-in;
             }
             table {
                 border-collapse: collapse;
