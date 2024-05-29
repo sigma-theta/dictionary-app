@@ -113,7 +113,7 @@ func newPage() Page {
 
 func getWords(db *sql.DB, page *Page) {
 	page.Data.Words = []Word{}
-	rows, err := db.Query("select * from words")
+	rows, err := db.Query("select * from words order by original")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -165,7 +165,7 @@ func main() {
 	getWords(db, &page)
 
 	e.Renderer = newTemplate()
-	e.Static("/css", "css") //not used right now, will fix maybe
+	e.Static("../css", "css") //not used right now, will fix maybe
 
 	e.GET("/", func(c echo.Context) error {
 		fmt.Printf("%d words in database", len(page.Data.Words))

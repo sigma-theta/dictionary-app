@@ -7,7 +7,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dutch to English/Turkish Dictionary</title>
         <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+        <!--<link rel="stylesheet" href="../css/index.css">-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        
         <style>
             .htmx-indicator {
                 opacity:0;
@@ -23,14 +25,22 @@
                 opacity:0;
                 transition: opacity 500ms ease-in;
             }
+            table {
+                border-collapse: collapse;
+                border: 2px solid rgb(140 140 140);
+            }
+            th, td {
+                border: 1px solid rgb(160 160 160);
+            }
         </style>
+    
     </head>
     <body>
         <main style="display: flex; gap: 100px;">
             <div class="dict">
                 {{ template "word-entry" .Form }}
                 <hr />
-                {{ template "display" .Data }}
+                {{ template "table" .Data }}
             </div>
             <div class="search">
                 {{ template "search" .Form }}

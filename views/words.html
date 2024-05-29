@@ -37,7 +37,7 @@
 
 {{ block "oob-word" . }}
 <div id="words" hx-swap-oob="afterbegin">
-    {{ template "word" . }}
+    {{ template "word-table" . }}
 </div>
 {{ end }}
 
@@ -53,17 +53,60 @@
 </div>
 {{ end }}
 
-{{ block "result" . }}
-<div class="search-result" id="result-{{ .Id }}" style="display: flex;">
-    <b>Word:</b> <span>{{ .Original }}</span>
-    <b>Translation:</b> <span>{{ .Translation }}</span>
-</div>
+{{ block "search-result" . }}
+<tr class="search-result" id="result-{{ .Id }}">
+    <td>{{ .Original }}</td>
+    <td>{{ .Translation }}</td>
+</tr>
 {{ end }}
 
 {{ block "search-results" . }}
-<div id="search-results" style="display: flex; flex-direction: column;" class="search-results">
-    {{ range .SearchResults }}
-        {{ template "result" . }}
-    {{ end }}
-</div>
+<table id="search-results" class="search-results">
+    <thead>
+        <tr>
+            <th scope="col">Word</th>
+            <th scope="col">Definition</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ range .SearchResults }}
+            {{ template "search-result" . }}
+        {{ end }}
+    </tbody>
+</table>
+{{ end }}
+
+{{ block "table" . }}
+<table id="words" class="words">
+    <thead>
+        <tr>
+            <th scope="col">Word</th>
+            <th scope="col">Definition</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ range .Words }}
+            {{ template "word-table" .}}
+        {{ end }}
+    </tbody>
+</table>
+{{ end }}
+
+{{ block "word-table" . }}
+<tr class="word" id="word-{{ .Id }}">
+    <td>{{ .Original }}</td>
+    <td>{{ .Translation }}</td>
+    <td>
+        <div class="actions-container" style="display: flex; justify-content: center; align-items: center;">
+            <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-delete="/words/{{ .Id }}"  style="width: 1rem; cursor: pointer;">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+            </div>
+    
+            <div id="di-{{ .Id }}" class="htmx-indicator">
+                <i class="fa fa-circle-o-notch fa-spin fa-ig fa-fw"></i>
+            </div>
+        </div>
+    </td>
+</tr>
 {{ end }}

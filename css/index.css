@@ -13,3 +13,12 @@
     opacity:0;
     transition: opacity 500ms ease-in;
 }
+
+table {
+    border-collapse: collapse;
+    border: 2px solid rgb(140 140 140);
+}
+
+th, td {
+    border: 1px solid rgb(160 160 160);
+}

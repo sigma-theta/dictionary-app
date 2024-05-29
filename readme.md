@@ -2,6 +2,6 @@
 
 ### Based on ThePrimeagen Intro to Go-HTMX course
 
-TODO: Implement edit in database
+TODO: Implement click to edit
 
 TODO: Styling
