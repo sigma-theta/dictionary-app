@@ -56,7 +56,7 @@
             <th scope="col">Actions</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody hx-target="closest tr" hx-swap="outerHTML">
         {{ range .Words }}
             {{ template "word-table" .}}
         {{ end }}
@@ -70,12 +70,34 @@
     <td>{{ .Translation }}</td>
     <td>
         <div class="actions-container" style="display: flex; justify-content: center; align-items: center;">
-            <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-delete="/words/{{ .Id }}"  style="width: 1rem; cursor: pointer;">
+            <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-delete="/words/{{ .Id }}" style="width: 1rem; cursor: pointer;">
                 <i class="fa fa-trash" aria-hidden="true"></i>
+            </div>
+
+            <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-get="/words/{{ .Id }}/edit" style="width: 1rem; cursor: pointer;">
+                <i class="fas fa-edit" aria-hidden="true"></i>
             </div>
     
             <div id="di-{{ .Id }}" class="htmx-indicator">
                 <i class="fa fa-circle-o-notch fa-spin fa-ig fa-fw"></i>
+            </div>
+        </div>
+    </td>
+</tr>
+{{ end }}
+
+{{ block "word-edit" . }}
+<tr class="word" id="word-{{ .Id }}" hx-trigger="cancel" hx-get="/words/{{ .Id }}" > 
+    <td><input type="text" name="newOriginal" value="{{ .Original }}"></td>
+    <td><input type="text" name="newTranslation" value="{{ .Translation }}"></td>
+    <td>
+        <div class="edit-actions" style="display: flex; justify-content: center; align-items: center;">
+            <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-get="/words/{{ .Id }}" style="width: 1rem; cursor: pointer;">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </div>
+
+            <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-put="/words/{{ .Id }}" hx-include="closest tr" style="width: 1rem; cursor: pointer;">
+                <i class="fa-solid fa-check" aria-hidden="true"></i>
             </div>
         </div>
     </td>

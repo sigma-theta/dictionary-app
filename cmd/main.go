@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -172,6 +173,50 @@ func main() {
 		return c.Render(200, "index", page)
 	})
 
+	e.GET("/words/:id", func(c echo.Context) error {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+
+		if err != nil {
+			return c.String(400, "Invalid id")
+		}
+
+		index := page.Data.indexOf(id)
+		if index == -1 {
+			return c.String(404, "Word not found")
+		}
+
+		getWordQry := fmt.Sprintf("select original, meaning from words where word_id = %d", id)
+		var defn Word
+		err = db.QueryRow(getWordQry).Scan(&defn.Original, &defn.Translation)
+		if err != nil {
+			fmt.Printf("couldn't get word: %s", err)
+		}
+		return c.Render(http.StatusOK, "word-table", defn)
+	})
+
+	e.GET("/words/:id/edit", func(c echo.Context) error {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+
+		if err != nil {
+			return c.String(400, "Invalid id")
+		}
+
+		index := page.Data.indexOf(id)
+		if index == -1 {
+			return c.String(404, "Word not found")
+		}
+
+		getWordQry := fmt.Sprintf("select original, meaning from words where word_id = %d", id)
+		var defn Word
+		err = db.QueryRow(getWordQry).Scan(&defn.Original, &defn.Translation)
+		if err != nil {
+			fmt.Printf("couldn't get word: %s", err)
+		}
+		return c.Render(http.StatusOK, "word-edit", defn)
+	})
+
 	e.POST("/words", func(c echo.Context) error {
 		original := c.FormValue("original")
 		translation := c.FormValue("translation")
@@ -190,7 +235,7 @@ func main() {
 
 		c.Render(200, "word-entry", newFormData())
 
-		return c.Render(200, "table", page.Data)
+		return c.Render(200, "table", page.Data) //TODO: fix, renders a new table instead of replacing original
 	})
 
 	e.POST("/search", func(c echo.Context) error {
@@ -228,6 +273,30 @@ func main() {
 		}
 
 		return c.Render(200, "search-results", page.Data)
+	})
+
+	e.PUT("/words/:id", func(c echo.Context) error {
+		newWord := c.FormValue("newOriginal")
+		newMeaning := c.FormValue("newTranslation")
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+
+		if err != nil {
+			return c.String(400, "Invalid id")
+		}
+
+		if newWord == "" || newMeaning == "" {
+			return c.String(http.StatusBadRequest, "Word or meaning can't be empty")
+		}
+
+		updateQry := fmt.Sprintf("update words set original = '%s', meaning ='%s' where word_id ='%d' returning original, meaning", newWord, newMeaning, id)
+		var newDefn Word
+		err = db.QueryRow(updateQry).Scan(&newDefn.Original, &newDefn.Translation)
+		if err != nil {
+			fmt.Printf("couldn't update word: %s", err)
+		}
+
+		return c.Render(http.StatusOK, "word-table", newDefn)
 	})
 
 	e.DELETE("/words/:id", func(c echo.Context) error {
