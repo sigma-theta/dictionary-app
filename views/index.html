@@ -8,6 +8,7 @@
         <meta name="htmx-config" content='{"useTemplateFragments":"true"}'>
         <title>Dutch to English/Turkish Dictionary</title>
         <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+        <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/multi-swap.js"></script>
         <!--<link rel="stylesheet" href="../css/index.css">-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         
@@ -36,7 +37,7 @@
         </style>
     
     </head>
-    <body>
+    <body hx-ext="multi-swap">
         <main style="display: flex; gap: 100px;">
             <div class="dict">
                 {{ template "word-entry" .Form }}

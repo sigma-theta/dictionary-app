@@ -32,10 +32,6 @@ func newTemplate() *Templates {
 	}
 }
 
-type Count struct {
-	Count int
-}
-
 type Word struct {
 	Original    string
 	Translation string
@@ -233,9 +229,9 @@ func main() {
 		defn := newWord(original, translation, db)
 		page.Data.Words = append([]Word{defn}, page.Data.Words...)
 
-		//c.Render(200, "word-entry", newFormData())
+		c.Render(200, "word-table-oob", defn)
 
-		return c.Render(200, "word-table-oob", defn)
+		return c.Render(200, "word-entry", newFormData())
 	})
 
 	e.POST("/search", func(c echo.Context) error {

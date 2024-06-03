@@ -1,5 +1,5 @@
 {{ block "word-entry" . }}
-<form hx-post="/words" hx-swap="none" hx-on::after_request="if (event.detail.successful) this.reset()">
+<form id="submit-form" hx-post="/words" hx-swap="#submit-form:outerHTML,#words-table:afterbegin">
     Word: <input {{ if.Values.original }} value="{{ .Values.original }}" {{ end }} type="text" name="original">
 
     Translation: <input {{ if.Values.translation }} value="{{ .Values.translation }}" {{ end }} type="text" name="translation">
