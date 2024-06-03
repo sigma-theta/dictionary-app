@@ -1,5 +1,5 @@
 {{ block "word-entry" . }}
-<form hx-swap="outerHTML" hx-post="/words">
+<form hx-post="/words" hx-swap="none" hx-on::after_request="if (event.detail.successful) this.reset()">
     Word: <input {{ if.Values.original }} value="{{ .Values.original }}" {{ end }} type="text" name="original">
 
     Translation: <input {{ if.Values.translation }} value="{{ .Values.translation }}" {{ end }} type="text" name="translation">
@@ -56,7 +56,7 @@
             <th scope="col">Actions</th>
         </tr>
     </thead>
-    <tbody hx-target="closest tr" hx-swap="outerHTML">
+    <tbody id="words-table" class="words-table" hx-target="closest tr" hx-swap="outerHTML">
         {{ range .Words }}
             {{ template "word-table" .}}
         {{ end }}
@@ -84,6 +84,30 @@
         </div>
     </td>
 </tr>
+{{ end }}
+
+{{ block "word-table-oob" . }}
+<tbody hx-swap-oob="afterbegin:#words-table">
+    <tr class="word" id="word-{{ .Id }}">
+        <td>{{ .Original }}</td>
+        <td>{{ .Translation }}</td>
+        <td>
+            <div class="actions-container" style="display: flex; justify-content: center; align-items: center;">
+                <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-delete="/words/{{ .Id }}" style="width: 1rem; cursor: pointer;">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </div>
+
+                <div hx-indicator="#di-{{ .Id }}" hx-target="#word-{{ .Id }}" hx-swap="outerHTML" hx-get="/words/{{ .Id }}/edit" style="width: 1rem; cursor: pointer;">
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                </div>
+            
+                <div id="di-{{ .Id }}" class="htmx-indicator">
+                    <i class="fa fa-circle-o-notch fa-spin fa-ig fa-fw"></i>
+                </div>
+            </div>
+        </td>
+    </tr>
+</tbody>
 {{ end }}
 
 {{ block "word-edit" . }}

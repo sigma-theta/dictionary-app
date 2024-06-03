@@ -186,9 +186,9 @@ func main() {
 			return c.String(404, "Word not found")
 		}
 
-		getWordQry := fmt.Sprintf("select original, meaning from words where word_id = %d", id)
+		getWordQry := fmt.Sprintf("select * from words where word_id = %d", id)
 		var defn Word
-		err = db.QueryRow(getWordQry).Scan(&defn.Original, &defn.Translation)
+		err = db.QueryRow(getWordQry).Scan(&defn.Id, &defn.Original, &defn.Translation)
 		if err != nil {
 			fmt.Printf("couldn't get word: %s", err)
 		}
@@ -208,9 +208,9 @@ func main() {
 			return c.String(404, "Word not found")
 		}
 
-		getWordQry := fmt.Sprintf("select original, meaning from words where word_id = %d", id)
+		getWordQry := fmt.Sprintf("select * from words where word_id = %d", id)
 		var defn Word
-		err = db.QueryRow(getWordQry).Scan(&defn.Original, &defn.Translation)
+		err = db.QueryRow(getWordQry).Scan(&defn.Id, &defn.Original, &defn.Translation)
 		if err != nil {
 			fmt.Printf("couldn't get word: %s", err)
 		}
@@ -233,9 +233,9 @@ func main() {
 		defn := newWord(original, translation, db)
 		page.Data.Words = append([]Word{defn}, page.Data.Words...)
 
-		c.Render(200, "word-entry", newFormData())
+		//c.Render(200, "word-entry", newFormData())
 
-		return c.Render(200, "table", page.Data) //TODO: fix, renders a new table instead of replacing original
+		return c.Render(200, "word-table-oob", defn)
 	})
 
 	e.POST("/search", func(c echo.Context) error {
@@ -285,16 +285,23 @@ func main() {
 			return c.String(400, "Invalid id")
 		}
 
+		index := page.Data.indexOf(id)
+		if index == -1 {
+			return c.String(404, "Word not found")
+		}
+
 		if newWord == "" || newMeaning == "" {
 			return c.String(http.StatusBadRequest, "Word or meaning can't be empty")
 		}
 
-		updateQry := fmt.Sprintf("update words set original = '%s', meaning ='%s' where word_id ='%d' returning original, meaning", newWord, newMeaning, id)
+		updateQry := fmt.Sprintf("update words set original = '%s', meaning ='%s' where word_id ='%d' returning *", newWord, newMeaning, id)
 		var newDefn Word
-		err = db.QueryRow(updateQry).Scan(&newDefn.Original, &newDefn.Translation)
+		err = db.QueryRow(updateQry).Scan(&newDefn.Id, &newDefn.Original, &newDefn.Translation)
 		if err != nil {
 			fmt.Printf("couldn't update word: %s", err)
 		}
+
+		page.Data.Words[index] = newDefn
 
 		return c.Render(http.StatusOK, "word-table", newDefn)
 	})

@@ -2,6 +2,6 @@
 
 ### Based on ThePrimeagen Intro to Go-HTMX course
 
-TODO: Implement click to edit
+TODO: Figure out how to reset form on submit
 
 TODO: Styling
